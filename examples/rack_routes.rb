@@ -80,7 +80,7 @@ class Version < Goliath::API
   end
 end
 
-class SayMyName < Goliath::API  
+class SayMyName < Goliath::APIWithOptions
   def response(env)
     [200, {}, ["Hello #{@opts[:name]}"]]
   end

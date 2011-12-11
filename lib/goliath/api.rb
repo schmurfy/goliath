@@ -165,16 +165,6 @@ module Goliath
         other_paths.each {|path| router.add(path).to(app) }
       end
     end
-    
-    ##
-    # The default constructor does nothing with the options
-    # passed, redefine your own to use them.
-    # 
-    # @param [Hash] opts options passed to a map call if any
-    # 
-    def initialize(opts = {})
-      @opts = opts
-    end
 
     # Default stub method to add options into the option parser.
     #
@@ -305,11 +295,46 @@ module Goliath
       if self.class.maps?
         response = self.class.router.recognize(env)
         if response = self.class.router.recognize(env) and response.respond_to?(:path) and response.path.route.api_class
-          env.event_handler = response.path.route.api_class.new(response.path.route.api_options)
+          # this test is like is_a?(..) but with a Class instead of an instantied object
+          if response.path.route.api_class < APIWithOptions
+            env.event_handler = response.path.route.api_class.new(response.path.route.api_options)
+          else
+            env.event_handler = response.path.route.api_class.new
+          end
         end
       end
       env.event_handler ||= self
     end
 
   end
+  
+  
+  # Subclass APIWithOptions if you want to declare an api class
+  # which takes constructor parameters.
+  #
+  # @example
+  #  require 'goliath'
+  #
+  #  class HelloWorld < Goliath::APIWithOptions
+  #    def response(env)
+  #      [200, {}, "hello #{@opts[:name]}"]
+  #    end
+  #  end
+  # 
+  #  class Router < Goliath::API
+  #     get '/leonard', HelloWorld, :api_options => {:name => "Leonard"}
+  #  end
+  #
+  class APIWithOptions < API
+    ##
+    # The options hash received is stored for later use in the
+    # @opts instance variable.
+    # 
+    # @param [Hash] opts options passed to a map call if any
+    # 
+    def initialize(opts = {})
+      @opts = opts
+    end
+  end
+  
 end
