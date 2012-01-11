@@ -29,7 +29,7 @@ module Goliath
           if klass.maps?
             klass.maps.each do |path, route_klass, opts, blk|
               route = klass.router.add(path, opts.dup)
-              route.api_options = opts.delete(:api_options) || {}
+              route.api_options = opts[:api_options] || {}
               route.api_class = route_klass
 
               route.to do |env|
