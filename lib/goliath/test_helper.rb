@@ -3,6 +3,7 @@ require 'em-synchrony/em-http'
 
 require 'goliath/api'
 require 'goliath/server'
+require 'goliath/application'
 require 'goliath/rack'
 require 'rack'
 
@@ -42,7 +43,7 @@ module Goliath
       s = Goliath::Server.new
       s.logger = setup_logger(options)
       s.api = api.new
-      s.app = Goliath::Rack::Builder.build(api, s.api)
+      s.app = Goliath::Application.builder_class.build(api, s.api)
       s.api.options_parser(op, options)
       s.options = options
       s.port = @test_server_port = port

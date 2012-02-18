@@ -34,6 +34,12 @@ module Goliath
 
     # @todo add rubinius (and hopefully other VM impls) ignore patterns ...
     CALLERS_TO_IGNORE.concat(RUBY_IGNORE_CALLERS) if defined?(RUBY_IGNORE_CALLERS)
+    
+    class << self
+      attr_accessor :builder_class
+    end
+    
+    self.builder_class = Goliath::Rack::Builder
 
     # Like Kernel#caller but excluding certain magic entries and without
     # line / method information; the resulting array contains filenames only.
@@ -117,7 +123,7 @@ module Goliath
       api = klass.new
 
       runner = Goliath::Runner.new(ARGV, api)
-      runner.app = Goliath::Rack::Builder.build(klass, api)
+      runner.app = builder_class.build(klass, api)
 
       runner.load_plugins(klass.plugins)
       runner.run
